@@ -5,37 +5,55 @@ const jwt=require('jsonwebtoken')
 const bcrypt=require('bcryptjs')
 const crypto=require('crypto')
 const nodeMailer=require('nodemailer')
+const cloudinary=require('cloudinary')
 
 
 // Create new user
 exports.registerUser=asyncWrapper(async(req,res,next)=>{
-    const email=req.body.email;
 
-    const user=await userModel.findOne({email:email})
+  console.log("Registeration request received")
+  // console.log(req.files.avatar)
+  console.log(req.body)
+  
+// const myCloud=await cloudinary.v2.uploader.upload(req.files.avatar,{
+//   folder:"avatars",
+//   width:150,
+//   crop:"scale"
+// })
+// const avatar={
+//         public_id:myCloud.public_id,
+//         url:myCloud.secure_url      
+//     }
+  
+    const {name,email,password}=req.body;
 
-    if(user){
+    const findUser=await userModel.findOne({email:email})
+
+    if(findUser){
         
         return next(new ErrorHandler("Email already registered",400))
-    }
+    }    
+    const user=await userModel.create({name,email,password,})
 
-    
-    const newUser=await userModel.create(req.body)
-
-    const newToken=newUser.getJWTToken()
+    const token=newUser.getJWTToken()
 
     res.status(201).cookie('token',newToken,{
         httpOnly:true,
         expires:new Date(Date.now+5*900000)
 
     }).json({
-        newUser,
-        newToken
+        user,
+        token
     })
    
 })
 // Login user system
 exports.loginUser=asyncWrapper(async(req,res,next)=>{
+
+  console.log('a fucking login request is received again....logIn Request Received')  
     const {email,password}=req.body
+  console.log(req.body)
+  console.log(req.cookies.token)
     if(!email || !password){
         return next(new ErrorHandler("Please enter email and password",400))
     }
@@ -50,18 +68,22 @@ exports.loginUser=asyncWrapper(async(req,res,next)=>{
     const matchPassword=await bcrypt.compare(String(password),userPassword)
 
    if (!matchPassword){
-       return next(new ErrorHandler("Invalid Email or password",401))
+       return next(new ErrorHandler("Invalid Login Email or Password",401))
    }
 
-    const newToken=user.getJWTToken()
+    const token=user.getJWTToken()
+  const samleCookie='cookiesareworkingfine'
 
-    res.status(200).cookie('token',newToken,{
+    res.status(200)
+  res.cookie('token',samleCookie,{
         httpOnly:true,
-        expires:new Date(Date.now()+5*100000)
+        expires:new Date(Date.now()+5*100000),
+        secure:true
 
-    }).json({
+    })
+  res.json({
         user,
-        newToken
+        token
     })
 })
 

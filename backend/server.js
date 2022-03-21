@@ -1,5 +1,6 @@
 const app= require('./app')
 const dotenv=require('dotenv')
+const cloudinary=require('cloudinary')
 // const connectDB=require('./config/database')
 
 const mongoose=require('mongoose')
@@ -16,7 +17,15 @@ const mongoose=require('mongoose')
 
 // config
 
+// 
+
 dotenv.config({path:'backend/config/config.env'})
+
+cloudinary.config({
+  cloud_name:"dixbcy17o",
+  api_key:156383897497549,
+  api_secret:"P3fivFGbCcFet3tx3OyVsyBsmNE"
+})
 
 const DB_URL="mongodb://localhost:27017/6Pack_Ecommerce"
 
@@ -25,7 +34,7 @@ const DB_URL2="mongodb://saghirahmad385:CA10796skan@cluster0-shard-00-00.ih9zo.m
 mongoose.connect(DB_URL2)
 .then(()=>{
     console.log("Successfully Connected to Database...")
-    app.listen(process.env.PORT,()=>{
+    app.listen(process.env.PORT || 5500,()=>{
         console.log(`Server is running on port ${process.env.PORT}`)
     })
 })

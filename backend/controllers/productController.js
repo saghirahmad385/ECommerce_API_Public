@@ -9,16 +9,31 @@ const createProduct=asyncWrapper(async(req,res,next)=>{
     const product=await productModel.create(req.body)
     res.status(200).json(product)
 })
-
 // Get All Products
 const getAllProducts=asyncWrapper(async(req,res,next)=>{
+  const query=req.query
 
-    const resultPerPage=5
-    const productCount= await productModel.countDocuments()
+  console.log(req.cookies)
 
-    const apiFeature= new ApiFeatures(productModel.find(),req.query).search().filter()
-    const products=await apiFeature.query
-    res.status(200).json({products,productCount})
+  if(req.query.keyword){
+    query.name={ $regex:req.query.keyword,
+                $options:'i'}
+  }
+ const currenPage= Number(query.page)
+  const resultPerPage=2
+  const skip=resultPerPage*(currenPage-1)
+  
+    const removeFields=["keyword","page","limit"]
+        removeFields.forEach(key=> delete query[key])  
+        console.log(query)
+  
+  console.log(currenPage)
+  
+      const products= await productModel.find({...query}).limit(resultPerPage).skip(skip) 
+    
+    const productCount=await productModel.countDocuments({...query})
+  
+    res.status(200).json({products,productCount,resultPerPage})
 })
 
 // Get Single Product

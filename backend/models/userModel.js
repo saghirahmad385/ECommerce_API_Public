@@ -28,11 +28,12 @@ const userSchema=new mongoose.Schema({
     avatar:{
         public_id:{
             type:String,
-            required:true
+            // required:true
         },
         url:{
             type:String,
-            required:true
+            // required:true
+          default:"https://images.unsplash.com/photo-1500648767791-00dcc994a43e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MXwxfDB8MXxhbGx8fHx8fHx8fA&ixlib=rb-1.2.1&q=80&w=1080&utm_source=unsplash_source&utm_medium=referral&utm_campaign=api-credit"
         }
     },
     role:{
